@@ -7,13 +7,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SearchTask implements Runnable {
 
     private final File directory;
-    private final String fileName;
+    private final String targetFileName;
     private final AtomicBoolean found;
     private final ExecutorService executor;
 
-    public SearchTask(File directory, String fileName, AtomicBoolean found, ExecutorService executor) {
+    public SearchTask(File directory, String targetFileName, AtomicBoolean found, ExecutorService executor) {
         this.directory = directory;
-        this.fileName = fileName;
+        this.targetFileName = targetFileName;
         this.found = found;
         this.executor = executor;
     }
@@ -28,16 +28,18 @@ public class SearchTask implements Runnable {
         for (File file : files) {
             if (found.get() || Thread.currentThread().isInterrupted()) return;
 
-            if (file.isFile()) {
-                if (file.getName().equals(fileName)) {
-                    if (found.compareAndSet(false, true)) {
-                        System.out.println("File found: " + file.getAbsolutePath());
-                        executor.shutdownNow(); // stop all tasks
-                        return;
-                    }
-                }
-            } else if (file.isDirectory()) {
-                executor.submit(new SearchTask(file, fileName, found, executor));
+            if(file.isDirectory()) {
+            	executor.submit(new SearchTask(file, targetFileName, found, executor));
+                continue;
+            }
+            
+            String fileName = file.getName();
+            if(! fileName.equals(targetFileName)) continue;
+                
+            if (found.compareAndSet(false, true)) {
+                System.out.println("File found: " + file.getAbsolutePath());
+                executor.shutdownNow(); // stop all tasks
+                return;
             }
         }
     }

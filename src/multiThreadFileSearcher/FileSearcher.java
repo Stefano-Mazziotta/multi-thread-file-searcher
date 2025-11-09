@@ -1,7 +1,9 @@
 package multiThreadFileSearcher;
 
 import java.io.File;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FileSearcher {
@@ -22,7 +24,7 @@ public class FileSearcher {
             return;
         }
 
-        // Create thread pool here — centralized control
+        // Create thread pool — centralized control
         int threads = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         AtomicBoolean found = new AtomicBoolean(false);
@@ -32,13 +34,13 @@ public class FileSearcher {
         // Submit the initial directory task
         executor.submit(new SearchTask(startPath, fileName, found, executor));
 
-        // Gracefully wait for all tasks to complete
-        executor.shutdown();
+        // Wait for all tasks to complete
         try {
             executor.awaitTermination(10, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        executor.shutdown();
 
         if (!found.get()) {
             System.out.println("File not found: " + fileName);

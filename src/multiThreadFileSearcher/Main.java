@@ -15,8 +15,8 @@ public class Main {
         }
 
         String fileName = args[0];
-        String startPath = args.length >= 2 ? args[1] : System.getProperty("user.dir");
-
+        String startPath = args.length >= 2 ? args[1] : "/";
+        System.out.println(startPath);
         FileSearcher searcher = new FileSearcher(fileName, startPath);
         searcher.startSearch();
     }
