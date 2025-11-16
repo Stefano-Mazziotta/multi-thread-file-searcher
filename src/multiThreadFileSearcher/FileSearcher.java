@@ -40,6 +40,7 @@ public class FileSearcher {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        
         executor.shutdown();
 
         if (!found.get()) {
